@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package agnostiko_meta;
+
+import "messages.proto";
+import "test_conect.proto";
+
+service MetaApp {
+  rpc RegisterClient (RegisterClientRequest) returns (RegisterClientResponse) {}
+  rpc RegisterTransaction (RegisterTransactionRequest) returns (RegisterTransactionResponse) {}
+  rpc StartTransaction (StartTransactionRequest) returns (TransactionNotification) {}
+  rpc GetStatus (GetStatusRequest) returns (GetStatusResponse) {}
+  rpc GetTransaction (GetTransactionRequest) returns (GetTransactionResponse) {}
+  rpc CancelTransaction (CancelRequest) returns (CancelNotification) {}
+  rpc CancelProcessTransaction (CancelProcessRequest) returns (CancelProcessResponse) {}
+
+  rpc TestC(RequestClientInfo) returns (TestConnectionReesponse){}
+}
