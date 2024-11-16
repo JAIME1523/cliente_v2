@@ -1,9 +1,10 @@
-import 'package:client_meta/logger/logger_printer.dart';
-import 'package:client_meta/presentation/data/service/helper/failures.dart';
-import 'package:client_meta/presentation/data/service/helper/local_storage.dart';
+
+import 'package:client_basev2/config/logger/logger_printer.dart';
+import 'package:client_basev2/infraestructure/infraestructure.dart';
 import 'package:dartz/dartz.dart';
-import 'package:server_grpc/secure/payload/payload_generate_service.dart';
 import 'package:server_grpc/server_grpc.dart';
+
+import '../../data/entities/failures_entity.dart';
 
 class AtuhDataSerice {
   static final logger = getLogger();
@@ -48,7 +49,7 @@ class AtuhDataSerice {
                return await PayloadGenerateService.stanCounterPayloGener(stan: stan!, counter:counter );
 
       case TypeAuth.boolCounter:
-                      return await PayloadGenerateService.statusBoolPaylo(counter:counter, statusBool:statusBool! );
+                      return await PayloadGenerateService.statusBoolPaylo(counter:counter, status:statusBool! );
 
     }
   }
