@@ -8,8 +8,8 @@ class TransactionsRepositoryImpl extends TransactionsRepository {
   TransactionsRepositoryImpl(this.dataSource);
 
   @override
-  Future<Either<ErrorEntity, bool>> cancelProcessTransaction(String id, {String origin = 'AppV1' }) =>
-      dataSource.cancelProcessTransaction(id,origin: origin);
+  Future<Either<ErrorEntity, bool>> cancelProcessTransaction( {String origin = 'AppV1' }) =>
+      dataSource.cancelProcessTransaction(origin: origin);
 
   @override
   Future<Either<ErrorEntity, TransactionStatus>> cancelTransaction( TransactionGRpcModel transactionGRpcModel, {String origin = 'AppV1' }) =>

@@ -11,5 +11,5 @@ abstract class TransactionDataSource{
 
   Future<Either<ErrorEntity, List<int>>> registerClient( {required String publicKey,required String randomCode });
   Future<Either<ErrorEntity, TransactionStatus>> cancelTransaction(TransactionGRpcModel transactionGRpcModel, {String origin = 'AppV1' });
-  Future<Either<ErrorEntity, bool>> cancelProcessTransaction(String id,{String origin = 'AppV1' });
+  Future<Either<ErrorEntity, bool>> cancelProcessTransaction({String origin = 'AppV1' });
 }

@@ -19,15 +19,14 @@ class TransactionGrpcDatasource extends TransactionDataSource {
   }
 
   @override
-  Future<Either<ErrorEntity, bool>> cancelProcessTransaction(String id,
-      {String origin = 'AppV1'}) async {
+  Future<Either<ErrorEntity, bool>> cancelProcessTransaction({String origin = 'AppV1'}) async {
     final channel = initChane();
     try {
       final auth = await AtuhDataSerice.generateNewAuth(TypeAuth.counter);
       final response = await MetaAppClient(channel).cancelProcessTransaction(
-          CancelProcessRequest(authData: auth, origin: 'Desde web'));
+          CancelProcessRequest(authData: auth, origin: origin));
       await channel.shutdown();
-      if (response.hasError()) return _error(response.error);
+      if (response.hasError()) return Left(_error(response.error));;
       return const Right(true);
     } catch (e) {
       await channel.shutdown();
@@ -50,8 +49,8 @@ class TransactionGrpcDatasource extends TransactionDataSource {
         origin: origin,
       ));
       await channel.shutdown();
-      if (event.hasError()) return _error(event.error);
-      if (!event.hasAuthData()) return _errorValid();
+      if (event.hasError()) return Left(_error(event.error));
+      if (!event.hasAuthData()) return Left(_error(event.error));
 
       final isValid = await AtuhDataSerice.validate(
           typeAuth: TypeAuth.counterStatus,
@@ -74,7 +73,7 @@ class TransactionGrpcDatasource extends TransactionDataSource {
       final response = await MetaAppClient(channel)
           .getStatus(GetStatusRequest(id: id, authData: auth, origin: origin));
       await channel.shutdown();
-      if (response.hasError()) return _error(response.error);
+      if (response.hasError()) return Left(_error(response.error));
       if (!response.hasAuthData()) return _errorValid();
 
       final isValid = await AtuhDataSerice.validate(
@@ -98,7 +97,7 @@ class TransactionGrpcDatasource extends TransactionDataSource {
       final response = await MetaAppClient(channel).getTransaction(
           GetTransactionRequest(authData: auth, id: id, origin: origin));
       await channel.shutdown();
-      if (response.hasError()) return _error(response.error);
+      if (response.hasError()) return Left(_error(response.error));
       if (!response.hasAuthData()) return _errorValid();
       final isValid = await AtuhDataSerice.validate(
           typeAuth: TypeAuth.counterStatus,
@@ -132,7 +131,7 @@ class TransactionGrpcDatasource extends TransactionDataSource {
               transaction: transac, authData: auth, origin: origin));
       await channel.shutdown();
       if (response.hasError()) {
-        return _error(response.error);
+        return Left(_error(response.error));
       }
       final isValid = await AtuhDataSerice.validate(
         typeAuth: TypeAuth.counter,
@@ -165,10 +164,10 @@ class TransactionGrpcDatasource extends TransactionDataSource {
       ));
       await channel.shutdown();
       if (event.hasError()) {
-        return _error(event.error,
+        return   Left(_error(event.error,
             transaction:
                 TransactionGRpcModel.fromMapByGrpc(event.writeToJsonMap())
-                    .copyWith(idProtoTransaction: event.id));
+                    .copyWith(idProtoTransaction: event.id)));
       }
       if (!event.hasAuthData()) {
         return _errorValid();
@@ -205,11 +204,11 @@ class TransactionGrpcDatasource extends TransactionDataSource {
     }
   }
 
-  _error(MetaError error, {TransactionGRpcModel? transaction}) {
-    return Left(ErrorEntity(
+  ErrorEntity _error(MetaError error, {TransactionGRpcModel? transaction}) {
+    return  ErrorEntity(
         errorMesage: error.errorMsg,
         errorCode: error.code,
-        transaction: transaction));
+        transaction: transaction);
   }
 
   _errorValid({bool isIncrement = false}) async {
