@@ -7,8 +7,6 @@ class UtilsAmont {
   static String amontCustom(int amont) => (amont / 100).toStringAsFixed(2);
   static int amont(String amont) {
     final newAmont = ((double.tryParse(amont) ?? 0) * (100));
-    print(newAmont.toInt());
-
     return newAmont.toInt();
   }
 
@@ -16,4 +14,7 @@ class UtilsAmont {
     final resp = domainExp.hasMatch(name) ? null : 'Ingrese un dato valido';
     return resp;
   }
+
+  static String amountInfo(int amount) => ((amount/100)).toString();
+  
 }

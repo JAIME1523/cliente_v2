@@ -45,7 +45,6 @@ class _EditdConect extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.read<ViewsCubit>();
 
-
     return Form(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -131,6 +130,7 @@ class _ShowInfo extends StatelessWidget {
             backgroundColor: colors.inversePrimary,
             title: 'Volver a vincular ',
             onPressed: () {
+              context.read<TransactionsBloc>().add(Close());
               provider.cleanMatch();
             },
           )

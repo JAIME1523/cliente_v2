@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:server_grpc/server_grpc.dart';
 
 abstract class TransactionsRepository {
-  Future<Either<ErrorEntity, TransactionGRpcModel>> insertTransaction(int amount, {TransactionType transactionTypeSelect = TransactionType.Sale,String origin = 'AppV1' });
+  Future<Either<ErrorEntity, TransactionGRpcModel>> insertTransaction(int amount, {required TransactionType transactionTypeSelect,String origin = 'AppV1' });
   Future<Either<ErrorEntity, TransactionGRpcModel>> getTransaction(String id,{String origin = 'AppV1' });
   Future<Either<ErrorEntity, TransactionStatus>> getStatus(String id,{String origin = 'AppV1' });
   Future<Either<ErrorEntity, TransactionGRpcModel>> startTransaccion(String id, {String origin = 'AppV1' });

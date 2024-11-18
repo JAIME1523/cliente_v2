@@ -69,6 +69,17 @@ class AdditionalInformationModel extends DataDbM {
 
       };
 
+       Map<String, dynamic> toMapModel() => {
+        //"transactionId": transactionId,
+        "cardBrand": cardBrand,
+        "entryMode": entryModePValues.reverse[entryMode] ,
+        "transactionDate": transactionDate,
+        "isFallback": isFallback ,
+        "onlineRequested": onlineRequested ,
+        "cvmType": entryCvmlues.reverse[cvmType] ,
+
+      };
+
   factory AdditionalInformationModel.fromMapByGrpc(Map<String, dynamic> json) {
     return AdditionalInformationModel(
       // transactionId: json["transactionId"],

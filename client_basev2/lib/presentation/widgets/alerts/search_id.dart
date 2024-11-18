@@ -56,7 +56,7 @@ class _SearchIdState extends State<SearchId> {
                   : () async {
                       FocusScope.of(context).requestFocus(FocusNode());
                       isLoading = true;
-                      final resul = await widget.onPressed!(idTr.text);
+                      final resul = await widget.onPressed!(idTr.text.trim());
                       isLoading = false;
                       if (context.mounted) {
                         if (Navigator.canPop(context)) {

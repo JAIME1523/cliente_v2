@@ -5,7 +5,7 @@ sealed class TransactionsEvent {}
 class InsertTransaction extends TransactionsEvent {
   final int amount;
   final TransactionType type;
-  InsertTransaction({required this.amount, this.type = TransactionType.Sale});
+  InsertTransaction({required this.amount, required this.type});
 }
 
 class GetStatus extends TransactionsEvent {
@@ -37,4 +37,14 @@ class CancelProggressTransaction extends TransactionsEvent{
 class ProgressTransaction extends TransactionsEvent{
   final bool value;
   ProgressTransaction(this.value);
+}
+
+class InsertAndSatrt extends TransactionsEvent {
+  final int amount;
+  final TransactionType type;
+  InsertAndSatrt({required this.amount, this.type = TransactionType.Sale});
+}
+
+class Close extends TransactionsEvent{
+  Close();
 }

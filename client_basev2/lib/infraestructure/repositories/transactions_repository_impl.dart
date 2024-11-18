@@ -25,9 +25,9 @@ class TransactionsRepositoryImpl extends TransactionsRepository {
 
   @override
   Future<Either<ErrorEntity, TransactionGRpcModel>> insertTransaction(int amount,
-          {TransactionType transactionTypeSelect = TransactionType.Sale,
+          {required TransactionType transactionTypeSelect,
           String origin = 'AppV1'}) =>
-      dataSource.insertTransaction(amount, origin: origin);
+      dataSource.insertTransaction(amount, origin: origin, transactionTypeSelect: transactionTypeSelect);
 
   @override
   Future<Either<ErrorEntity, List<int>>> registerClient({required String publicKey,required String randomCode }) =>

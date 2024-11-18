@@ -3,6 +3,7 @@ import 'package:client_basev2/data/entities/error_entity.dart.dart';
 import 'package:client_basev2/infraestructure/infraestructure.dart';
 import 'package:grpc/grpc.dart';
 import 'package:server_grpc/logger/logger_printer.dart';
+
 class TransactionGrpcDatasource extends TransactionDataSource {
   static final logger = getLogger(TransactionGrpcDatasource);
 
@@ -19,14 +20,15 @@ class TransactionGrpcDatasource extends TransactionDataSource {
   }
 
   @override
-  Future<Either<ErrorEntity, bool>> cancelProcessTransaction({String origin = 'AppV1'}) async {
+  Future<Either<ErrorEntity, bool>> cancelProcessTransaction(
+      {String origin = 'AppV1'}) async {
     final channel = initChane();
     try {
       final auth = await AtuhDataSerice.generateNewAuth(TypeAuth.counter);
       final response = await MetaAppClient(channel).cancelProcessTransaction(
           CancelProcessRequest(authData: auth, origin: origin));
       await channel.shutdown();
-      if (response.hasError()) return Left(_error(response.error));;
+      if (response.hasError()) return Left(_error(response.error));
       return const Right(true);
     } catch (e) {
       await channel.shutdown();
@@ -36,7 +38,9 @@ class TransactionGrpcDatasource extends TransactionDataSource {
   }
 
   @override
-  Future<Either<ErrorEntity, TransactionStatus>> cancelTransaction(TransactionGRpcModel transactionGRpcModel, {String origin = 'AppV1'}) async {
+  Future<Either<ErrorEntity, TransactionStatus>> cancelTransaction(
+      TransactionGRpcModel transactionGRpcModel,
+      {String origin = 'AppV1'}) async {
     final channel = initChane();
     try {
       final auth = await AtuhDataSerice.generateNewAuth(TypeAuth.stanCounte,
@@ -56,7 +60,7 @@ class TransactionGrpcDatasource extends TransactionDataSource {
           typeAuth: TypeAuth.counterStatus,
           authData: event.authData,
           status: event.status);
-      if (isValid.isLeft()) return _errorValid();
+      if (isValid.isLeft()) return Left(await _errorValid());
       return Right(event.status);
     } catch (e) {
       await channel.shutdown();
@@ -66,7 +70,8 @@ class TransactionGrpcDatasource extends TransactionDataSource {
   }
 
   @override
-  Future<Either<ErrorEntity, TransactionStatus>> getStatus(String id, {String origin = 'AppV1'}) async {
+  Future<Either<ErrorEntity, TransactionStatus>> getStatus(String id,
+      {String origin = 'AppV1'}) async {
     final channel = initChane();
     try {
       final auth = await AtuhDataSerice.generateNewAuth(TypeAuth.counter);
@@ -74,13 +79,13 @@ class TransactionGrpcDatasource extends TransactionDataSource {
           .getStatus(GetStatusRequest(id: id, authData: auth, origin: origin));
       await channel.shutdown();
       if (response.hasError()) return Left(_error(response.error));
-      if (!response.hasAuthData()) return _errorValid();
+      if (!response.hasAuthData()) return Left(await _errorValid());
 
       final isValid = await AtuhDataSerice.validate(
           typeAuth: TypeAuth.counterStatus,
           authData: response.authData,
           status: response.status);
-      if (isValid.isLeft()) return _errorValid();
+      if (isValid.isLeft()) return Left(await _errorValid());
       return Right(response.status);
     } catch (e) {
       await channel.shutdown();
@@ -90,7 +95,8 @@ class TransactionGrpcDatasource extends TransactionDataSource {
   }
 
   @override
-  Future<Either<ErrorEntity, TransactionGRpcModel>> getTransaction(String id,{String origin = 'AppV1'}) async {
+  Future<Either<ErrorEntity, TransactionGRpcModel>> getTransaction(String id,
+      {String origin = 'AppV1'}) async {
     final channel = initChane();
     try {
       final auth = await AtuhDataSerice.generateNewAuth(TypeAuth.counter);
@@ -98,12 +104,12 @@ class TransactionGrpcDatasource extends TransactionDataSource {
           GetTransactionRequest(authData: auth, id: id, origin: origin));
       await channel.shutdown();
       if (response.hasError()) return Left(_error(response.error));
-      if (!response.hasAuthData()) return _errorValid();
+      if (!response.hasAuthData()) return Left(await _errorValid());
       final isValid = await AtuhDataSerice.validate(
           typeAuth: TypeAuth.counterStatus,
           authData: response.authData,
           status: response.transaction.status);
-      if (isValid.isLeft()) return _errorValid();
+      if (isValid.isLeft()) return Left(await _errorValid());
       return Right(TransactionGRpcModel.fromMapByGrpc(
               response.transaction.writeToJsonMap())
           .copyWith(idProtoTransaction: id));
@@ -115,7 +121,10 @@ class TransactionGrpcDatasource extends TransactionDataSource {
   }
 
   @override
-  Future<Either<ErrorEntity, TransactionGRpcModel>> insertTransaction(int amount,{TransactionType transactionTypeSelect = TransactionType.Sale,String origin = 'AppV1'}) async {
+  Future<Either<ErrorEntity, TransactionGRpcModel>> insertTransaction(
+      int amount,
+      {required TransactionType transactionTypeSelect,
+      String origin = 'AppV1'}) async {
     final channel = initChane();
 
     try {
@@ -124,7 +133,7 @@ class TransactionGrpcDatasource extends TransactionDataSource {
       final transac = Transaction(
         amount: amount,
         status: TransactionStatus.Pending,
-        type: TransactionType.Sale,
+        type: transactionTypeSelect,
       );
       final response = await MetaAppClient(channel).registerTransaction(
           RegisterTransactionRequest(
@@ -151,7 +160,8 @@ class TransactionGrpcDatasource extends TransactionDataSource {
   }
 
   @override
-  Future<Either<ErrorEntity, TransactionGRpcModel>> startTransaccion(String id,{String origin = 'AppV1'}) async {
+  Future<Either<ErrorEntity, TransactionGRpcModel>> startTransaccion(String id,
+      {String origin = 'AppV1'}) async {
     final channel = initChane();
 
     try {
@@ -163,22 +173,26 @@ class TransactionGrpcDatasource extends TransactionDataSource {
         origin: origin,
       ));
       await channel.shutdown();
+      print(event.hasError());
       if (event.hasError()) {
-        return   Left(_error(event.error,
-            transaction:
-                TransactionGRpcModel.fromMapByGrpc(event.writeToJsonMap())
-                    .copyWith(idProtoTransaction: event.id)));
+        return Left(_error(event.error,
+            transaction: event.hasTransaction()
+                ? TransactionGRpcModel.fromMapByGrpc(
+                        event.transaction.writeToJsonMap())
+                    .copyWith(idProtoTransaction: event.id)
+                : null));
       }
       if (!event.hasAuthData()) {
-        return _errorValid();
+        return Left(await _errorValid());
       }
       final isValid = await AtuhDataSerice.validate(
           typeAuth: TypeAuth.counterStatus,
           authData: event.authData,
           status: event.transaction.status);
-      if (isValid.isLeft()) return _errorValid();
-      return Right(TransactionGRpcModel.fromMapByGrpc(event.writeToJsonMap())
-          .copyWith(idProtoTransaction: event.id));
+      if (isValid.isLeft()) return Left(await _errorValid());
+      return Right(
+          TransactionGRpcModel.fromMapByGrpc(event.transaction.writeToJsonMap())
+              .copyWith(idProtoTransaction: event.id));
     } catch (e) {
       await channel.shutdown();
       logger.e(e);
@@ -187,7 +201,8 @@ class TransactionGrpcDatasource extends TransactionDataSource {
   }
 
   @override
-  Future<Either<ErrorEntity, List<int>>> registerClient({required String publicKey, required String randomCode}) async {
+  Future<Either<ErrorEntity, List<int>>> registerClient(
+      {required String publicKey, required String randomCode}) async {
     final channel = initChane();
     try {
       final response = await MetaAppClient(channel).registerClient(
@@ -205,14 +220,14 @@ class TransactionGrpcDatasource extends TransactionDataSource {
   }
 
   ErrorEntity _error(MetaError error, {TransactionGRpcModel? transaction}) {
-    return  ErrorEntity(
+    return ErrorEntity(
         errorMesage: error.errorMsg,
         errorCode: error.code,
         transaction: transaction);
   }
 
-  _errorValid({bool isIncrement = false}) async {
+  Future<ErrorEntity> _errorValid({bool isIncrement = false}) async {
     if (isIncrement) await LocalStorage.getSaveCounter();
-    return Left(ErrorEntity(errorMesage: "No se puede autenticar"));
+    return ErrorEntity(errorMesage: "No se puede autenticar");
   }
 }

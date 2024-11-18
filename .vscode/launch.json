@@ -1,0 +1,48 @@
+{
+    // Use IntelliSense para saber los atributos posibles.
+    // Mantenga el puntero para ver las descripciones de los existentes atributos.
+    // Para más información, visite: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "client_basev2",
+            "cwd": "client_basev2",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "client_basev2 (profile mode)",
+            "cwd": "client_basev2",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "client_basev2 (release mode)",
+            "cwd": "client_basev2",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "server_grpc",
+            "cwd": "server_grpc",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "server_grpc (profile mode)",
+            "cwd": "server_grpc",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "server_grpc (release mode)",
+            "cwd": "server_grpc",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
